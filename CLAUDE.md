@@ -1,220 +1,102 @@
 # Dino - Claude Development Handbook
 
-**This is your development manual for building the Chrome Dino game. Follow this guide when implementing features, writing code, and solving problems.**
-
----
-
 ## Project Overview
 
-**Dino** is a faithful Chrome offline dinosaur game recreation.
-
-- **Type**: Endless runner game
-- **Platform**: Web browser
-- **Tech Stack**: TypeScript + HTML5 Canvas (zero external libraries)
-- **Architecture**: ECS (Entity Component System)
-- **Target**: 60 FPS, < 1s load time, < 50MB memory
+**Tech Stack**: TypeScript 5.3 (Strict) + Vite 5.x + Vitest + ESLint/Prettier
+**Architecture**: ECS (Entity Component System)
+**Tools**: [GitHub](https://github.com/XenosXavier/Forgent-Dino) · [ClickUp](https://app.clickup.com/901810111459/home) · [GitHub Pages](https://xenosxavier.github.io/Forgent-Dino/)
+**Docs**: [GDD/TDD](https://app.clickup.com/901810111459/docs) · [Tasks](https://app.clickup.com/901810111459/v/li/901816875197)
+**Constraints**: Zero external libs · TypeScript Strict · Canvas 600×150px
 
 ---
 
-## Primary Documents
+## Environment Setup
 
-**Always check these first:**
-
-1. **[GDD.md](GDD.md)** — Game design decisions
-   - Use for: What features to build, how mechanics work, visual style
-
-2. **[TDD.md](TDD.md)** — Technical standards and decisions
-   - Use for: Code style rules, version planning, performance budgets
-
-3. **[diagrams/](diagrams/)** — Visual references
-   - `core_loop.png` — Game loop flow
-   - `screen_flow.png` — Screen transitions
-
----
-
-## Common Commands (Development)
-
-**Starting Development:**
-```bash
-npm run dev          # Start Vite dev server (localhost:5173)
-npm run preview      # Preview production build
-```
-
-**Code Quality:**
-```bash
-npm run lint         # Run ESLint checks
-npm run format       # Auto-format with Prettier
-npm run type-check   # TypeScript type checking only
-```
-
-**Testing:**
-```bash
-npm run test                # Run all tests (watch mode)
-npm run test:coverage       # Generate coverage report
-npm run test -- <filename>  # Run specific test file
-```
-
-**Build & Deploy:**
-```bash
-npm run build        # Production build (dist/)
-git push origin main # Auto-deploys to GitHub Pages
-```
-
-**Performance Profiling:**
-```bash
-# In browser console during dev:
-console.time('frame');
-// ... render logic
-console.timeEnd('frame');  # Should be < 16.67ms
-```
-
----
-
-## Architecture: ECS (Entity Component System)
-
-**Core Principles:**
-- **Entities** — Game objects (Player, Cactus, Pterodactyl, Cloud, Ground)
-- **Components** — Data only (Position, Velocity, Sprite, Hitbox, Animation)
-- **Systems** — Logic only (RenderSystem, PhysicsSystem, CollisionSystem, InputSystem)
-
-**Structure:** `src/entities/`, `src/components/`, `src/systems/`, `src/core/`
-
-**Pattern:**
-- Entity = ID + Components
-- Component = Pure data structure
-- System = Logic that queries and updates components
+**Node.js**: 20.x LTS (`node -v`)
+**Git Remote**: SSH (`git remote set-url origin git@github.com:XenosXavier/Forgent-Dino.git`)
+**Dependencies**: `npm install` → `npm run type-check` to verify
 
 ---
 
 ## Development Workflow
 
-**Complete Feature Development Process:**
-
-1. **Get Task from ClickUp** — Retrieve task content, change status to "in progress"
-2. **Create Feature Branch** — Analyze task, create branch: `git checkout -b feat/feature-name dev`
-3. **Develop** — Implement feature following acceptance criteria
-   - Check GDD/TDD for design decisions
-   - Create components (data) → systems (logic) → entities (composition)
-   - Write tests (> 90% coverage), verify in browser
-   - Profile performance (< 16.67ms/frame, < 20 draw calls)
-4. **Commit & Push** — Write conventional commit, push to GitHub
-   - Format: `type(scope): description` + body + `Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>`
-   - Push: `git push -u origin feat/feature-name`
-5. **Create Pull Request** — Open PR targeting `dev` branch with description
-6. **Code Review** — Review PR changes, fix issues, merge when approved (use `--no-ff`)
-7. **Update ClickUp** — Add PR link to task, change status to "done"
+**1. Get Task** → Change status to "In Development"
+**2. Create Branch** → `git checkout -b feat/{name} dev` (kebab-case, no version)
+**3. Develop** → Implement Acceptance Criteria + Tests (>90%) + Verify quality
+**4. Commit** → `type(scope): description` + `Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>`
+**5. Create PR** → Change status to "In Review" → base: dev
+**6. Review & Merge** → merge method: merge → Delete local/remote branch
+**7. Update Task** → Add PR link → Change status to "SHIPPED" → `git pull origin dev`
 
 ---
 
-## Testing Instructions
+## Git Standards
 
-**Performance Verification:**
-- **60 FPS**: Use `console.time('frame')` in game loop, should be < 16.67ms
-- **Load Time**: DevTools Network tab, hard refresh, check "Load" time < 1s
-- **Memory**: DevTools Performance Monitor, play 5 min, JS Heap < 50MB (stable)
-
-**Functional Verification:**
-- **Collision**: Jump into cactus → Game Over; Duck under pterodactyl → Avoid
-- **Input**: Space/Down responds within 1 frame (< 16ms)
-- **Score**: Increases continuously; High score updates and resets on refresh
-
-**Browser Testing**: Chrome (primary), Firefox, Safari, Edge
+**Branch Structure**: `main → release → dev → feat/*`
+**Naming**: `feat/{feature-name}` (kebab-case, e.g., `feat/project-init`)
+**Commit**: `type(scope): description\n\n- Changes\n\nCo-Authored-By: ...`
+**Type**: feat/fix/refactor/test/chore/docs
+**PR**: base: dev · merge method: merge · Include Summary/Changes/Testing/Task link
+**Forbidden**: Direct merge · Version in branch/commit · HTTPS remote · Keep merged branch
 
 ---
 
-## Code Style Quick Reference
+## Code Standards
 
-**Naming:**
-- Classes/Interfaces: `PascalCase` (e.g., `RenderSystem`)
-- Functions/Variables: `camelCase` (e.g., `updatePosition`)
-- Constants: `UPPER_SNAKE_CASE` (e.g., `CANVAS_WIDTH`)
-- Private: `private` keyword (not `#`)
-
-**Files:**
-- TypeScript files: `camelCase.ts` (e.g., `renderSystem.ts`)
-- Test files: `*.test.ts`
-
-**Types:**
-- Always use explicit types
-- Avoid `any`, use `unknown` if needed
-- Prefer `interface` for objects, `type` for unions
-
-**Comments:**
-- JSDoc for all public APIs
-- Inline comments for complex logic only
+**TypeScript**: Strict Mode · Explicit types · No `any` (use `unknown`)
+**ECS**: Entity (ID+Components) · Component (data only) · System (logic only)
+**Naming**: Classes `PascalCase` · Functions `camelCase` · Constants `UPPER_SNAKE_CASE` · Files `camelCase.ts`
+**Testing**: Coverage >90% · Unit + Integration tests
+**Quality**: `npm run lint/format/type-check` must pass
 
 ---
 
-## Project-Specific Warnings
+## ClickUp Integration
 
-### ⚠️ Canvas API Gotchas
-- **save/restore**: Always balance `ctx.save()` with `ctx.restore()` to avoid state corruption
-- **clearRect**: For Dino, redraw white background instead of clearRect (better performance)
-- **Image Loading**: Wait for `img.onload` before drawing, or images may not appear
-
-### ⚠️ Performance Pitfalls
-- **No object allocation in game loop**: Reuse objects or use primitives (avoid GC pressure)
-- **Component queries over instanceof**: Use `entity.getComponent(Type)` (faster than type checking)
-- **Cache strings**: Don't create new strings every frame in render loop
-
-### ⚠️ TypeScript Strict Mode
-- Always use explicit types, no implicit `any`
-- Function params and return values must be typed
-- Use `unknown` instead of `any` when type is truly unknown
-
-### ⚠️ Git & Version
-- Never commit to `main`, use feature branches
-- Preserve merge commits (`--no-ff`)
-- Follow conventional commits: `feat(scope): description`
-- **Stick to current version scope** — Don't implement features from future versions (see TDD Section 9)
+**Status Flow**: `BACKLOG → In Development → In Review → SHIPPED`
+**Update Timing**: Step 1 dev · Step 5 create PR · Step 7 done
+**PR Link**: Add to Task description bottom: `## 📎 Pull Request\n**PR #X**: [title](url)\n**Status**: ✅ Merged to dev`
+**Estimation**: Binary split (controllable=accurate time · uncontrollable=continue splitting or use experience/discussion time)
 
 ---
 
-## Performance Budgets (Must Meet)
+## Version Management
 
-**Frame Budget:**
-- Total frame time: < 16.67ms (60 FPS)
-- JavaScript execution: < 10ms/frame
-- Rendering: < 6ms/frame
-
-**Load Budget:**
-- Initial load: < 1 second
-- Asset size: < 100KB (uncompressed)
-
-**Memory Budget:**
-- Total usage: < 50MB
-- No memory leaks (stable over 5+ minutes)
-
-**Rendering Budget:**
-- Draw calls: < 20 per frame
-- Use `requestAnimationFrame` only
+**Format**: Semantic Versioning (x.y.z)
+**Usage**: Git Tag only (`git tag v0.1.0 -m "..."` → `git push origin v0.1.0`)
+**Forbidden**: Version in branch name/commit message
+**Release**: dev→release (PR) → tag → GitHub Release → release→main (PR)
+**Release Description**: Feature scope (ref TDD Version List)
 
 ---
 
-## Constraints (Must Follow)
+## Performance & Testing
 
-1. **Zero External Libraries** — No npm packages in production build
-2. **TypeScript Strict Mode** — `"strict": true` in tsconfig.json
-3. **Test Coverage > 90%** — All features must have tests
-4. **ECS Architecture** — Follow Entity-Component-System pattern
-5. **Canvas Size: 600×150px** — Fixed, never change
-6. **No Audio** — This game has no sound
-
----
-
-## Quick Reference
-
-| Need | Check |
-|------|-------|
-| What to build | GDD.md |
-| How to build | This file (CLAUDE.md) |
-| Code style | TDD Section 5 |
-| Version scope | TDD Section 9 |
-| Performance targets | TDD Section 7 |
-| Git workflow | TDD Section 6 |
+**Performance**: 60 FPS (<16.67ms/frame) · Load <1s · Memory <50MB
+**Unit Tests**: All Component/System/Entity logic
+**Integration Tests**: System collaboration · Game loop · Canvas rendering
+**Scenario Tests**: New features from this Task + Existing features regression (ref Acceptance Criteria)
+**Execute**: `npm run test` · `npm run test:coverage` · `npm run dev` (manual)
 
 ---
 
-**Last Updated:** 2026-03-24
-**Project Owner:** Bug.J
-**Your Role:** Implement features following this handbook
+## Common Commands
+
+**Dev**: `npm run dev/build/preview`
+**Test**: `npm run test` · `npm run test:coverage` · `npm run test -- <file>`
+**Quality**: `npm run lint/format/type-check`
+**Git**: `git checkout -b feat/{name} dev` · `git push -u origin feat/{name}` · `git branch -d feat/{name}` · `git push origin --delete feat/{name}` · `git pull origin dev`
+
+---
+
+## Warnings & Gotchas
+
+**Git**: ❌ Create dev from main · Version in branch/commit · HTTPS · Forget delete/sync · Direct merge ✅ main→release→dev→feat · SSH · PR · Delete+sync immediately
+**TypeScript**: ❌ any · Implicit types ✅ unknown · Explicit types+return values
+**ClickUp**: ❌ "done"/"complete" ✅ "In Development"/"In Review"/"SHIPPED" · Forget update status/add PR link
+**ECS**: ❌ Component has logic · System keeps state ✅ Component data only · System stateless
+**Performance**: ❌ Allocate objects/strings in loop · instanceof ✅ Reuse objects · Component queries
+
+---
+
+**Last Updated**: 2026-03-24 · **Owner**: Bug.J
