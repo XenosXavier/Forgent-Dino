@@ -88,14 +88,21 @@ console.timeEnd('frame');  # Should be < 16.67ms
 
 ## Development Workflow
 
-**Feature Development Steps:**
+**Complete Feature Development Process:**
 
-1. **Design** — Check GDD/TDD, identify entities/components/systems needed
-2. **Implement** — Create components (data) → systems (logic) → entities (composition)
-3. **Test** — Write tests (> 90% coverage), verify in browser, check performance
-4. **Optimize** — Profile (< 16.67ms/frame, < 20 draw calls), verify memory stable
-5. **Integrate** — Update docs if needed, commit (conventional commits), PR to `dev`
-6. **Complete** — Feature works, tests pass, performance met, no TS/ESLint errors
+1. **Get Task from ClickUp** — Retrieve task content, change status to "in progress"
+2. **Create Feature Branch** — Analyze task, create branch: `git checkout -b feat/feature-name dev`
+3. **Develop** — Implement feature following acceptance criteria
+   - Check GDD/TDD for design decisions
+   - Create components (data) → systems (logic) → entities (composition)
+   - Write tests (> 90% coverage), verify in browser
+   - Profile performance (< 16.67ms/frame, < 20 draw calls)
+4. **Commit & Push** — Write conventional commit, push to GitHub
+   - Format: `type(scope): description` + body + `Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>`
+   - Push: `git push -u origin feat/feature-name`
+5. **Create Pull Request** — Open PR targeting `dev` branch with description
+6. **Code Review** — Review PR changes, fix issues, merge when approved (use `--no-ff`)
+7. **Update ClickUp** — Add PR link to task, change status to "done"
 
 ---
 
