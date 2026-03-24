@@ -1,9 +1,15 @@
 /**
  * Dino Game - Main Entry Point
- * Chrome offline dinosaur game recreation
+ * Chrome offline dinosaur game recreation with ECS architecture
  */
 
 import { CANVAS_WIDTH, CANVAS_HEIGHT, type CanvasContext } from './types';
+import { Engine } from './core/Engine';
+import { World } from './core/World';
+import { RenderSystem } from './systems/RenderSystem';
+import { MovementSystem } from './systems/MovementSystem';
+import { ScrollSystem } from './systems/ScrollSystem';
+import { createGround } from './entities/Ground';
 
 /**
  * Initialize canvas and rendering context
@@ -35,35 +41,38 @@ function initializeCanvas(): CanvasContext {
 }
 
 /**
- * Draw test rectangle to verify rendering
- */
-function drawTestRectangle(ctx: CanvasContext): void {
-  // Clear canvas with white background
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-  // Draw test rectangle
-  ctx.fillStyle = '#535353';
-  ctx.fillRect(250, 50, 100, 50);
-
-  // Draw text
-  ctx.fillStyle = '#000000';
-  ctx.font = '16px monospace';
-  ctx.fillText('Canvas Initialized', 220, 130);
-}
-
-/**
  * Main entry point
  */
 function main(): void {
-  console.log('Dino game initializing...');
+  console.log('🎮 Dino game initializing with ECS architecture...');
 
   try {
+    // Initialize canvas
     const ctx = initializeCanvas();
-    drawTestRectangle(ctx);
-    console.log('Canvas initialized successfully');
+
+    // Create ECS world
+    const world = new World();
+
+    // Create engine with 60 FPS target
+    const engine = new Engine(world, { targetFps: 60, maxDeltaTime: 0.1 });
+
+    // Add systems in priority order
+    // Higher priority = runs first
+    engine.addSystem(new MovementSystem(100)); // Update positions first
+    engine.addSystem(new ScrollSystem(CANVAS_WIDTH, 50)); // Handle scrolling
+    engine.addSystem(new RenderSystem(ctx, -100)); // Render last
+
+    // Create ground entities with infinite scrolling
+    createGround(world);
+
+    // Start game loop
+    engine.start();
+
+    console.log('✅ Game initialized successfully');
+    console.log(`⚙️ Systems: ${engine.getSystems().length}`);
+    console.log(`🌍 Entities: ${world.getEntities().size}`);
   } catch (error) {
-    console.error('Failed to initialize game:', error);
+    console.error('❌ Failed to initialize game:', error);
   }
 }
 
