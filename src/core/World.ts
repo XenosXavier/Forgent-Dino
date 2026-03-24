@@ -22,12 +22,12 @@ export class World {
   private components: Map<ComponentClass, Map<Entity, Component>>;
 
   // Entities pending removal
-  private entitiesToRemove: Set<Entity>;
+  private removalEntities: Set<Entity>;
 
   constructor() {
     this.entities = new Set();
     this.components = new Map();
-    this.entitiesToRemove = new Set();
+    this.removalEntities = new Set();
   }
 
   /**
@@ -53,7 +53,7 @@ export class World {
    * @param entity Entity ID to remove
    */
   removeEntity(entity: Entity): void {
-    this.entitiesToRemove.add(entity);
+    this.removalEntities.add(entity);
   }
 
   /**
@@ -76,18 +76,14 @@ export class World {
   /**
    * Add component to entity
    * @param entity Entity ID
-   * @param componentClass Component class
    * @param component Component instance
    */
-  addComponent<T extends Component>(
-    entity: Entity,
-    componentClass: ComponentClass<T>,
-    component: T
-  ): void {
+  addComponent<T extends Component>(entity: Entity, component: T): void {
     if (!this.entities.has(entity)) {
       throw new Error(`Entity ${entity} does not exist in world`);
     }
 
+    const componentClass = component.constructor as ComponentClass<T>;
     let componentMap = this.components.get(componentClass);
     if (!componentMap) {
       componentMap = new Map();
@@ -191,9 +187,9 @@ export class World {
    * Remove all entities marked for deletion
    */
   private cleanupEntities(): void {
-    if (this.entitiesToRemove.size === 0) return;
+    if (this.removalEntities.size === 0) return;
 
-    for (const entity of this.entitiesToRemove) {
+    for (const entity of this.removalEntities) {
       // Remove entity
       this.entities.delete(entity);
 
@@ -203,7 +199,7 @@ export class World {
       }
     }
 
-    this.entitiesToRemove.clear();
+    this.removalEntities.clear();
   }
 
   /**
@@ -212,6 +208,6 @@ export class World {
   clear(): void {
     this.entities.clear();
     this.components.clear();
-    this.entitiesToRemove.clear();
+    this.removalEntities.clear();
   }
 }

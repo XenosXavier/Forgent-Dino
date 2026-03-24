@@ -66,7 +66,7 @@ describe('World', () => {
 
     it('should remove entity components', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent(10, 20));
+      world.addComponent(entity, new PositionComponent(10, 20));
       world.removeEntity(entity);
       world.cleanup();
 
@@ -79,7 +79,7 @@ describe('World', () => {
       const entity = world.createEntity();
       const component = new PositionComponent(10, 20);
 
-      world.addComponent(entity, PositionComponent, component);
+      world.addComponent(entity, component);
 
       expect(world.hasComponent(entity, PositionComponent)).toBe(true);
     });
@@ -89,14 +89,14 @@ describe('World', () => {
       const component = new PositionComponent();
 
       expect(() => {
-        world.addComponent(entity, PositionComponent, component);
+        world.addComponent(entity, component);
       }).toThrow('Entity 999 does not exist in world');
     });
 
     it('should allow adding multiple components', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent());
-      world.addComponent(entity, VelocityComponent, new VelocityComponent());
+      world.addComponent(entity, new PositionComponent());
+      world.addComponent(entity, new VelocityComponent());
 
       expect(world.hasComponent(entity, PositionComponent)).toBe(true);
       expect(world.hasComponent(entity, VelocityComponent)).toBe(true);
@@ -104,8 +104,8 @@ describe('World', () => {
 
     it('should replace existing component', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent(10, 20));
-      world.addComponent(entity, PositionComponent, new PositionComponent(30, 40));
+      world.addComponent(entity, new PositionComponent(10, 20));
+      world.addComponent(entity, new PositionComponent(30, 40));
 
       const component = world.getComponent(entity, PositionComponent);
       if (component) {
@@ -119,7 +119,7 @@ describe('World', () => {
     it('should return component if exists', () => {
       const entity = world.createEntity();
       const component = new PositionComponent(10, 20);
-      world.addComponent(entity, PositionComponent, component);
+      world.addComponent(entity, component);
 
       const result = world.getComponent(entity, PositionComponent);
       expect(result).toBeDefined();
@@ -138,8 +138,8 @@ describe('World', () => {
 
     it('should return correct component type', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent(10, 20));
-      world.addComponent(entity, VelocityComponent, new VelocityComponent(5, 5));
+      world.addComponent(entity, new PositionComponent(10, 20));
+      world.addComponent(entity, new VelocityComponent(5, 5));
 
       const pos = world.getComponent(entity, PositionComponent);
       const vel = world.getComponent(entity, VelocityComponent);
@@ -154,7 +154,7 @@ describe('World', () => {
   describe('hasComponent', () => {
     it('should return true if component exists', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent());
+      world.addComponent(entity, new PositionComponent());
 
       expect(world.hasComponent(entity, PositionComponent)).toBe(true);
     });
@@ -167,7 +167,7 @@ describe('World', () => {
 
     it('should return correct value for multiple components', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent());
+      world.addComponent(entity, new PositionComponent());
 
       expect(world.hasComponent(entity, PositionComponent)).toBe(true);
       expect(world.hasComponent(entity, VelocityComponent)).toBe(false);
@@ -177,7 +177,7 @@ describe('World', () => {
   describe('removeComponent', () => {
     it('should remove component if exists', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent());
+      world.addComponent(entity, new PositionComponent());
 
       const result = world.removeComponent(entity, PositionComponent);
 
@@ -194,8 +194,8 @@ describe('World', () => {
 
     it('should only remove specified component', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent());
-      world.addComponent(entity, VelocityComponent, new VelocityComponent());
+      world.addComponent(entity, new PositionComponent());
+      world.addComponent(entity, new VelocityComponent());
 
       world.removeComponent(entity, PositionComponent);
 
@@ -214,8 +214,8 @@ describe('World', () => {
 
     it('should return all components', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent());
-      world.addComponent(entity, VelocityComponent, new VelocityComponent());
+      world.addComponent(entity, new PositionComponent());
+      world.addComponent(entity, new VelocityComponent());
 
       const components = world.getEntityComponents(entity);
       expect(components).toHaveLength(2);
@@ -225,13 +225,13 @@ describe('World', () => {
   describe('query', () => {
     it('should return entities with specific component', () => {
       const entity1 = world.createEntity();
-      world.addComponent(entity1, PositionComponent, new PositionComponent());
+      world.addComponent(entity1, new PositionComponent());
 
       const entity2 = world.createEntity();
-      world.addComponent(entity2, VelocityComponent, new VelocityComponent());
+      world.addComponent(entity2, new VelocityComponent());
 
       const entity3 = world.createEntity();
-      world.addComponent(entity3, PositionComponent, new PositionComponent());
+      world.addComponent(entity3, new PositionComponent());
 
       const results = world.query(PositionComponent);
       expect(results).toHaveLength(2);
@@ -241,11 +241,11 @@ describe('World', () => {
 
     it('should return entities with multiple components', () => {
       const entity1 = world.createEntity();
-      world.addComponent(entity1, PositionComponent, new PositionComponent());
+      world.addComponent(entity1, new PositionComponent());
 
       const entity2 = world.createEntity();
-      world.addComponent(entity2, PositionComponent, new PositionComponent());
-      world.addComponent(entity2, VelocityComponent, new VelocityComponent());
+      world.addComponent(entity2, new PositionComponent());
+      world.addComponent(entity2, new VelocityComponent());
 
       const results = world.query(PositionComponent, VelocityComponent);
       expect(results).toHaveLength(1);
@@ -254,7 +254,7 @@ describe('World', () => {
 
     it('should return empty array if no matches', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent());
+      world.addComponent(entity, new PositionComponent());
 
       const results = world.query(VelocityComponent);
       expect(results).toHaveLength(0);
@@ -262,7 +262,7 @@ describe('World', () => {
 
     it('should not include removed entities', () => {
       const entity = world.createEntity();
-      world.addComponent(entity, PositionComponent, new PositionComponent());
+      world.addComponent(entity, new PositionComponent());
       world.removeEntity(entity);
       world.cleanup();
 
