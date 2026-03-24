@@ -1,9 +1,10 @@
 /**
  * Engine - Game loop manager
- * Manages the main game loop using requestAnimationFrame
+ * Manages the main game loop and systems using requestAnimationFrame
  */
 
 import { World } from './World';
+import type { System } from './System';
 
 /**
  * Engine configuration options
@@ -27,8 +28,10 @@ export interface EngineConfig {
  */
 export class Engine {
   private world: World;
+  private systems: System[];
   private running: boolean;
   private lastTime: number;
+  // ID returned by requestAnimationFrame, used to cancel the frame with cancelAnimationFrame
   private animationFrameId: number | null;
   private readonly maxDeltaTime: number;
 
@@ -39,6 +42,7 @@ export class Engine {
 
   constructor(world: World, config: EngineConfig = {}) {
     this.world = world;
+    this.systems = [];
     this.running = false;
     this.lastTime = 0;
     this.animationFrameId = null;
@@ -104,6 +108,47 @@ export class Engine {
   }
 
   /**
+   * Register system to engine
+   * Systems are sorted by priority (higher = earlier execution)
+   * @param system System to register
+   */
+  addSystem(system: System): void {
+    this.systems.push(system);
+    // Sort systems by priority (descending)
+    this.systems.sort((a, b) => b.priority - a.priority);
+    // Initialize system if it has init method
+    if (system.init) {
+      system.init(this.world);
+    }
+  }
+
+  /**
+   * Remove system from engine
+   * @param system System to remove
+   * @returns True if system was removed
+   */
+  removeSystem(system: System): boolean {
+    const index = this.systems.indexOf(system);
+    if (index !== -1) {
+      // Cleanup system if it has destroy method
+      if (system.destroy) {
+        system.destroy();
+      }
+      this.systems.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Get all registered systems
+   * @returns Array of systems (sorted by priority)
+   */
+  getSystems(): readonly System[] {
+    return this.systems;
+  }
+
+  /**
    * Main game loop (called by requestAnimationFrame)
    * @param currentTime Current timestamp from requestAnimationFrame
    */
@@ -122,8 +167,13 @@ export class Engine {
     // Update FPS counter
     this.updateFpsCounter(deltaTime);
 
-    // Update world (all systems)
-    this.world.update(deltaTime);
+    // Update all systems in priority order
+    for (const system of this.systems) {
+      system.update(this.world, deltaTime);
+    }
+
+    // Cleanup entities marked for removal
+    this.world.cleanup();
 
     // Schedule next frame
     this.animationFrameId = requestAnimationFrame(this.gameLoop);

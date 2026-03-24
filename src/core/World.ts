@@ -1,19 +1,17 @@
 /**
  * World - ECS World Container
- * Manages entities, components, and systems
+ * Manages entities and components
  * In pure ECS, the World owns all entity-component relationships
  */
 
 import type { Entity } from './Entity';
 import { createEntity } from './Entity';
 import type { Component, ComponentClass } from './Component';
-import type { System } from './System';
 
 /**
  * World class manages the ECS world
  * - Stores all entities
  * - Stores all component data organized by type
- * - Manages systems
  * - Provides query methods for systems
  */
 export class World {
@@ -23,16 +21,12 @@ export class World {
   // Component storage: ComponentClass -> (Entity -> Component)
   private components: Map<ComponentClass, Map<Entity, Component>>;
 
-  // Systems
-  private systems: System[];
-
   // Entities pending removal
   private entitiesToRemove: Set<Entity>;
 
   constructor() {
     this.entities = new Set();
     this.components = new Map();
-    this.systems = [];
     this.entitiesToRemove = new Set();
   }
 
@@ -87,7 +81,7 @@ export class World {
    */
   addComponent<T extends Component>(
     entity: Entity,
-    componentClass: ComponentClass<T>,
+    componentClass: ComponentClass,
     component: T
   ): void {
     if (!this.entities.has(entity)) {
@@ -111,7 +105,7 @@ export class World {
    */
   getComponent<T extends Component>(
     entity: Entity,
-    componentClass: ComponentClass<T>
+    componentClass: ComponentClass
   ): T | undefined {
     const componentMap = this.components.get(componentClass);
     return componentMap?.get(entity) as T | undefined;
@@ -123,10 +117,7 @@ export class World {
    * @param componentClass Component class
    * @returns True if entity has component
    */
-  hasComponent<T extends Component>(
-    entity: Entity,
-    componentClass: ComponentClass<T>
-  ): boolean {
+  hasComponent(entity: Entity, componentClass: ComponentClass): boolean {
     const componentMap = this.components.get(componentClass);
     return componentMap?.has(entity) ?? false;
   }
@@ -137,10 +128,7 @@ export class World {
    * @param componentClass Component class
    * @returns True if component was removed
    */
-  removeComponent<T extends Component>(
-    entity: Entity,
-    componentClass: ComponentClass<T>
-  ): boolean {
+  removeComponent(entity: Entity, componentClass: ComponentClass): boolean {
     const componentMap = this.components.get(componentClass);
     return componentMap?.delete(entity) ?? false;
   }
@@ -186,57 +174,10 @@ export class World {
   }
 
   /**
-   * Register system to world
-   * Systems are sorted by priority (higher = earlier execution)
-   * @param system System to register
+   * Cleanup entities marked for removal
+   * Called by Engine at end of frame
    */
-  addSystem(system: System): void {
-    this.systems.push(system);
-    // Sort systems by priority (descending)
-    this.systems.sort((a, b) => b.priority - a.priority);
-    // Initialize system if it has init method
-    if (system.init) {
-      system.init(this);
-    }
-  }
-
-  /**
-   * Remove system from world
-   * @param system System to remove
-   * @returns True if system was removed
-   */
-  removeSystem(system: System): boolean {
-    const index = this.systems.indexOf(system);
-    if (index !== -1) {
-      // Cleanup system if it has destroy method
-      if (system.destroy) {
-        system.destroy();
-      }
-      this.systems.splice(index, 1);
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Get all registered systems
-   * @returns Array of systems (sorted by priority)
-   */
-  getSystems(): readonly System[] {
-    return this.systems;
-  }
-
-  /**
-   * Update all systems (called by engine)
-   * @param deltaTime Time since last frame in seconds
-   */
-  update(deltaTime: number): void {
-    // Update all systems in priority order
-    for (const system of this.systems) {
-      system.update(this, deltaTime);
-    }
-
-    // Remove inactive entities at end of frame
+  cleanup(): void {
     this.cleanupEntities();
   }
 
@@ -260,19 +201,11 @@ export class World {
   }
 
   /**
-   * Remove all entities, components, and systems
+   * Remove all entities and components
    */
   clear(): void {
-    // Cleanup all systems
-    for (const system of this.systems) {
-      if (system.destroy) {
-        system.destroy();
-      }
-    }
-
     this.entities.clear();
     this.components.clear();
-    this.systems = [];
     this.entitiesToRemove.clear();
   }
 }

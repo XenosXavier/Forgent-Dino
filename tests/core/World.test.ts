@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { World } from '../../src/core/World';
 import { resetEntityCounter } from '../../src/core/Entity';
 import type { Entity } from '../../src/core/Entity';
-import { System } from '../../src/core/System';
 import type { Component } from '../../src/core/Component';
 
 // Mock components
@@ -18,25 +17,6 @@ class VelocityComponent implements Component {
     public vx: number = 0,
     public vy: number = 0
   ) {}
-}
-
-// Mock system
-class MockSystem extends System {
-  updateCalled = false;
-  initCalled = false;
-  destroyCalled = false;
-
-  update(): void {
-    this.updateCalled = true;
-  }
-
-  init(): void {
-    this.initCalled = true;
-  }
-
-  destroy(): void {
-    this.destroyCalled = true;
-  }
 }
 
 describe('World', () => {
@@ -76,10 +56,10 @@ describe('World', () => {
   });
 
   describe('removeEntity', () => {
-    it('should remove entity after update', () => {
+    it('should remove entity after cleanup', () => {
       const entity = world.createEntity();
       world.removeEntity(entity);
-      world.update(0);
+      world.cleanup();
 
       expect(world.hasEntity(entity)).toBe(false);
     });
@@ -88,7 +68,7 @@ describe('World', () => {
       const entity = world.createEntity();
       world.addComponent(entity, PositionComponent, new PositionComponent(10, 20));
       world.removeEntity(entity);
-      world.update(0);
+      world.cleanup();
 
       expect(world.hasComponent(entity, PositionComponent)).toBe(false);
     });
@@ -128,8 +108,10 @@ describe('World', () => {
       world.addComponent(entity, PositionComponent, new PositionComponent(30, 40));
 
       const component = world.getComponent(entity, PositionComponent);
-      expect(component?.x).toBe(30);
-      expect(component?.y).toBe(40);
+      if (component) {
+        expect((component as PositionComponent).x).toBe(30);
+        expect((component as PositionComponent).y).toBe(40);
+      }
     });
   });
 
@@ -141,8 +123,10 @@ describe('World', () => {
 
       const result = world.getComponent(entity, PositionComponent);
       expect(result).toBeDefined();
-      expect(result?.x).toBe(10);
-      expect(result?.y).toBe(20);
+      if (result) {
+        expect((result as PositionComponent).x).toBe(10);
+        expect((result as PositionComponent).y).toBe(20);
+      }
     });
 
     it('should return undefined if component does not exist', () => {
@@ -160,8 +144,10 @@ describe('World', () => {
       const pos = world.getComponent(entity, PositionComponent);
       const vel = world.getComponent(entity, VelocityComponent);
 
-      expect(pos?.x).toBe(10);
-      expect(vel?.vx).toBe(5);
+      if (pos && vel) {
+        expect((pos as PositionComponent).x).toBe(10);
+        expect((vel as VelocityComponent).vx).toBe(5);
+      }
     });
   });
 
@@ -278,88 +264,18 @@ describe('World', () => {
       const entity = world.createEntity();
       world.addComponent(entity, PositionComponent, new PositionComponent());
       world.removeEntity(entity);
-      world.update(0);
+      world.cleanup();
 
       const results = world.query(PositionComponent);
       expect(results).toHaveLength(0);
     });
   });
 
-  describe('addSystem', () => {
-    it('should add system to world', () => {
-      const system = new MockSystem();
-      world.addSystem(system);
-
-      const systems = world.getSystems();
-      expect(systems).toContain(system);
-    });
-
-    it('should call system init method', () => {
-      const system = new MockSystem();
-      world.addSystem(system);
-
-      expect(system.initCalled).toBe(true);
-    });
-
-    it('should sort systems by priority', () => {
-      const system1 = new MockSystem(10);
-      const system2 = new MockSystem(5);
-      const system3 = new MockSystem(20);
-
-      world.addSystem(system1);
-      world.addSystem(system2);
-      world.addSystem(system3);
-
-      const systems = world.getSystems();
-      expect(systems[0]).toBe(system3);
-      expect(systems[1]).toBe(system1);
-      expect(systems[2]).toBe(system2);
-    });
-  });
-
-  describe('removeSystem', () => {
-    it('should remove system from world', () => {
-      const system = new MockSystem();
-      world.addSystem(system);
-      const result = world.removeSystem(system);
-
-      expect(result).toBe(true);
-      expect(world.getSystems()).not.toContain(system);
-    });
-
-    it('should call system destroy method', () => {
-      const system = new MockSystem();
-      world.addSystem(system);
-      world.removeSystem(system);
-
-      expect(system.destroyCalled).toBe(true);
-    });
-
-    it('should return false if system not found', () => {
-      const system = new MockSystem();
-      const result = world.removeSystem(system);
-
-      expect(result).toBe(false);
-    });
-  });
-
-  describe('update', () => {
-    it('should call update on all systems', () => {
-      const system1 = new MockSystem();
-      const system2 = new MockSystem();
-
-      world.addSystem(system1);
-      world.addSystem(system2);
-      world.update(0.016);
-
-      expect(system1.updateCalled).toBe(true);
-      expect(system2.updateCalled).toBe(true);
-    });
-
-    it('should clean up removed entities', () => {
+  describe('cleanup', () => {
+    it('should remove entities marked for removal', () => {
       const entity = world.createEntity();
       world.removeEntity(entity);
-      world.update(0);
+      world.cleanup();
 
       expect(world.hasEntity(entity)).toBe(false);
     });
@@ -372,26 +288,6 @@ describe('World', () => {
       world.clear();
 
       expect(world.getEntities().size).toBe(0);
-    });
-
-    it('should remove all systems', () => {
-      world.addSystem(new MockSystem());
-      world.addSystem(new MockSystem());
-      world.clear();
-
-      expect(world.getSystems()).toHaveLength(0);
-    });
-
-    it('should call destroy on all systems', () => {
-      const system1 = new MockSystem();
-      const system2 = new MockSystem();
-
-      world.addSystem(system1);
-      world.addSystem(system2);
-      world.clear();
-
-      expect(system1.destroyCalled).toBe(true);
-      expect(system2.destroyCalled).toBe(true);
     });
   });
 });

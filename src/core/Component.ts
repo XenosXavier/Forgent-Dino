@@ -12,6 +12,7 @@ export interface Component {}
 
 /**
  * Component class type for identifying component types
+ * Simplified without generic since Component is an empty interface
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ComponentClass<T extends Component = Component> = new (...args: any[]) => T;
+export type ComponentClass = new (...args: any[]) => Component;
