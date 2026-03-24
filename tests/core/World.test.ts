@@ -1,34 +1,23 @@
-/**
- * World unit tests
- */
-
 import { describe, it, expect, beforeEach } from 'vitest';
 import { World } from '../../src/core/World';
-import { Entity } from '../../src/core/Entity';
+import { resetEntityCounter } from '../../src/core/Entity';
+import type { Entity } from '../../src/core/Entity';
 import { System } from '../../src/core/System';
 import type { Component } from '../../src/core/Component';
 
 // Mock components
 class PositionComponent implements Component {
-  readonly type = 'PositionComponent';
-  x: number;
-  y: number;
-
-  constructor(x: number = 0, y: number = 0) {
-    this.x = x;
-    this.y = y;
-  }
+  constructor(
+    public x: number = 0,
+    public y: number = 0
+  ) {}
 }
 
 class VelocityComponent implements Component {
-  readonly type = 'VelocityComponent';
-  vx: number;
-  vy: number;
-
-  constructor(vx: number = 0, vy: number = 0) {
-    this.vx = vx;
-    this.vy = vy;
-  }
+  constructor(
+    public vx: number = 0,
+    public vy: number = 0
+  ) {}
 }
 
 // Mock system
@@ -55,79 +44,210 @@ describe('World', () => {
 
   beforeEach(() => {
     world = new World();
+    resetEntityCounter();
   });
 
   describe('createEntity', () => {
     it('should create new entity', () => {
       const entity = world.createEntity();
-      expect(entity).toBeInstanceOf(Entity);
+      expect(typeof entity).toBe('number');
     });
 
     it('should add entity to world', () => {
       const entity = world.createEntity();
-      const entities = world.getEntities();
-      expect(entities).toContain(entity);
+      expect(world.hasEntity(entity)).toBe(true);
     });
 
     it('should create multiple unique entities', () => {
       const entity1 = world.createEntity();
       const entity2 = world.createEntity();
 
-      expect(entity1.getId()).not.toBe(entity2.getId());
+      expect(entity1).not.toBe(entity2);
     });
   });
 
   describe('addEntity', () => {
     it('should add existing entity to world', () => {
-      const entity = new Entity();
+      const entity: Entity = 999;
       world.addEntity(entity);
 
-      const entities = world.getEntities();
-      expect(entities).toContain(entity);
+      expect(world.hasEntity(entity)).toBe(true);
     });
   });
 
   describe('removeEntity', () => {
-    it('should mark entity as inactive', () => {
-      const entity = world.createEntity();
-      world.removeEntity(entity);
-
-      expect(entity.isActive()).toBe(false);
-    });
-
     it('should remove entity after update', () => {
       const entity = world.createEntity();
       world.removeEntity(entity);
       world.update(0);
 
-      const entities = world.getEntities();
-      expect(entities).not.toContain(entity);
+      expect(world.hasEntity(entity)).toBe(false);
     });
 
-    it('should not include inactive entities in getEntities', () => {
-      const entity1 = world.createEntity();
-      const entity2 = world.createEntity();
-      world.removeEntity(entity1);
+    it('should remove entity components', () => {
+      const entity = world.createEntity();
+      world.addComponent(entity, PositionComponent, new PositionComponent(10, 20));
+      world.removeEntity(entity);
+      world.update(0);
 
-      const entities = world.getEntities();
-      expect(entities).not.toContain(entity1);
-      expect(entities).toContain(entity2);
+      expect(world.hasComponent(entity, PositionComponent)).toBe(false);
     });
   });
 
-  describe('queryEntities', () => {
-    it('should return entities with specific components', () => {
+  describe('addComponent', () => {
+    it('should add component to entity', () => {
+      const entity = world.createEntity();
+      const component = new PositionComponent(10, 20);
+
+      world.addComponent(entity, PositionComponent, component);
+
+      expect(world.hasComponent(entity, PositionComponent)).toBe(true);
+    });
+
+    it('should throw error if entity does not exist', () => {
+      const entity: Entity = 999;
+      const component = new PositionComponent();
+
+      expect(() => {
+        world.addComponent(entity, PositionComponent, component);
+      }).toThrow('Entity 999 does not exist in world');
+    });
+
+    it('should allow adding multiple components', () => {
+      const entity = world.createEntity();
+      world.addComponent(entity, PositionComponent, new PositionComponent());
+      world.addComponent(entity, VelocityComponent, new VelocityComponent());
+
+      expect(world.hasComponent(entity, PositionComponent)).toBe(true);
+      expect(world.hasComponent(entity, VelocityComponent)).toBe(true);
+    });
+
+    it('should replace existing component', () => {
+      const entity = world.createEntity();
+      world.addComponent(entity, PositionComponent, new PositionComponent(10, 20));
+      world.addComponent(entity, PositionComponent, new PositionComponent(30, 40));
+
+      const component = world.getComponent(entity, PositionComponent);
+      expect(component?.x).toBe(30);
+      expect(component?.y).toBe(40);
+    });
+  });
+
+  describe('getComponent', () => {
+    it('should return component if exists', () => {
+      const entity = world.createEntity();
+      const component = new PositionComponent(10, 20);
+      world.addComponent(entity, PositionComponent, component);
+
+      const result = world.getComponent(entity, PositionComponent);
+      expect(result).toBeDefined();
+      expect(result?.x).toBe(10);
+      expect(result?.y).toBe(20);
+    });
+
+    it('should return undefined if component does not exist', () => {
+      const entity = world.createEntity();
+
+      const result = world.getComponent(entity, PositionComponent);
+      expect(result).toBeUndefined();
+    });
+
+    it('should return correct component type', () => {
+      const entity = world.createEntity();
+      world.addComponent(entity, PositionComponent, new PositionComponent(10, 20));
+      world.addComponent(entity, VelocityComponent, new VelocityComponent(5, 5));
+
+      const pos = world.getComponent(entity, PositionComponent);
+      const vel = world.getComponent(entity, VelocityComponent);
+
+      expect(pos?.x).toBe(10);
+      expect(vel?.vx).toBe(5);
+    });
+  });
+
+  describe('hasComponent', () => {
+    it('should return true if component exists', () => {
+      const entity = world.createEntity();
+      world.addComponent(entity, PositionComponent, new PositionComponent());
+
+      expect(world.hasComponent(entity, PositionComponent)).toBe(true);
+    });
+
+    it('should return false if component does not exist', () => {
+      const entity = world.createEntity();
+
+      expect(world.hasComponent(entity, PositionComponent)).toBe(false);
+    });
+
+    it('should return correct value for multiple components', () => {
+      const entity = world.createEntity();
+      world.addComponent(entity, PositionComponent, new PositionComponent());
+
+      expect(world.hasComponent(entity, PositionComponent)).toBe(true);
+      expect(world.hasComponent(entity, VelocityComponent)).toBe(false);
+    });
+  });
+
+  describe('removeComponent', () => {
+    it('should remove component if exists', () => {
+      const entity = world.createEntity();
+      world.addComponent(entity, PositionComponent, new PositionComponent());
+
+      const result = world.removeComponent(entity, PositionComponent);
+
+      expect(result).toBe(true);
+      expect(world.hasComponent(entity, PositionComponent)).toBe(false);
+    });
+
+    it('should return false if component does not exist', () => {
+      const entity = world.createEntity();
+
+      const result = world.removeComponent(entity, PositionComponent);
+      expect(result).toBe(false);
+    });
+
+    it('should only remove specified component', () => {
+      const entity = world.createEntity();
+      world.addComponent(entity, PositionComponent, new PositionComponent());
+      world.addComponent(entity, VelocityComponent, new VelocityComponent());
+
+      world.removeComponent(entity, PositionComponent);
+
+      expect(world.hasComponent(entity, PositionComponent)).toBe(false);
+      expect(world.hasComponent(entity, VelocityComponent)).toBe(true);
+    });
+  });
+
+  describe('getEntityComponents', () => {
+    it('should return empty array if no components', () => {
+      const entity = world.createEntity();
+
+      const components = world.getEntityComponents(entity);
+      expect(components).toEqual([]);
+    });
+
+    it('should return all components', () => {
+      const entity = world.createEntity();
+      world.addComponent(entity, PositionComponent, new PositionComponent());
+      world.addComponent(entity, VelocityComponent, new VelocityComponent());
+
+      const components = world.getEntityComponents(entity);
+      expect(components).toHaveLength(2);
+    });
+  });
+
+  describe('query', () => {
+    it('should return entities with specific component', () => {
       const entity1 = world.createEntity();
-      entity1.addComponent(PositionComponent, new PositionComponent(10, 20));
+      world.addComponent(entity1, PositionComponent, new PositionComponent());
 
       const entity2 = world.createEntity();
-      entity2.addComponent(VelocityComponent, new VelocityComponent(5, 5));
+      world.addComponent(entity2, VelocityComponent, new VelocityComponent());
 
       const entity3 = world.createEntity();
-      entity3.addComponent(PositionComponent, new PositionComponent(30, 40));
-      entity3.addComponent(VelocityComponent, new VelocityComponent(1, 1));
+      world.addComponent(entity3, PositionComponent, new PositionComponent());
 
-      const results = world.queryEntities(PositionComponent);
+      const results = world.query(PositionComponent);
       expect(results).toHaveLength(2);
       expect(results).toContain(entity1);
       expect(results).toContain(entity3);
@@ -135,31 +255,32 @@ describe('World', () => {
 
     it('should return entities with multiple components', () => {
       const entity1 = world.createEntity();
-      entity1.addComponent(PositionComponent, new PositionComponent());
+      world.addComponent(entity1, PositionComponent, new PositionComponent());
 
       const entity2 = world.createEntity();
-      entity2.addComponent(PositionComponent, new PositionComponent());
-      entity2.addComponent(VelocityComponent, new VelocityComponent());
+      world.addComponent(entity2, PositionComponent, new PositionComponent());
+      world.addComponent(entity2, VelocityComponent, new VelocityComponent());
 
-      const results = world.queryEntities(PositionComponent, VelocityComponent);
+      const results = world.query(PositionComponent, VelocityComponent);
       expect(results).toHaveLength(1);
       expect(results).toContain(entity2);
     });
 
     it('should return empty array if no matches', () => {
       const entity = world.createEntity();
-      entity.addComponent(PositionComponent, new PositionComponent());
+      world.addComponent(entity, PositionComponent, new PositionComponent());
 
-      const results = world.queryEntities(VelocityComponent);
+      const results = world.query(VelocityComponent);
       expect(results).toHaveLength(0);
     });
 
-    it('should not include inactive entities', () => {
+    it('should not include removed entities', () => {
       const entity = world.createEntity();
-      entity.addComponent(PositionComponent, new PositionComponent());
+      world.addComponent(entity, PositionComponent, new PositionComponent());
       world.removeEntity(entity);
+      world.update(0);
 
-      const results = world.queryEntities(PositionComponent);
+      const results = world.query(PositionComponent);
       expect(results).toHaveLength(0);
     });
   });
@@ -190,9 +311,9 @@ describe('World', () => {
       world.addSystem(system3);
 
       const systems = world.getSystems();
-      expect(systems[0]).toBe(system3); // priority 20
-      expect(systems[1]).toBe(system1); // priority 10
-      expect(systems[2]).toBe(system2); // priority 5
+      expect(systems[0]).toBe(system3);
+      expect(systems[1]).toBe(system1);
+      expect(systems[2]).toBe(system2);
     });
   });
 
@@ -235,13 +356,12 @@ describe('World', () => {
       expect(system2.updateCalled).toBe(true);
     });
 
-    it('should clean up inactive entities', () => {
+    it('should clean up removed entities', () => {
       const entity = world.createEntity();
       world.removeEntity(entity);
       world.update(0);
 
-      const entities = world.getEntities();
-      expect(entities).not.toContain(entity);
+      expect(world.hasEntity(entity)).toBe(false);
     });
   });
 
@@ -251,7 +371,7 @@ describe('World', () => {
       world.createEntity();
       world.clear();
 
-      expect(world.getEntities()).toHaveLength(0);
+      expect(world.getEntities().size).toBe(0);
     });
 
     it('should remove all systems', () => {

@@ -1,23 +1,17 @@
 /**
  * Component - Pure data container (no logic)
  * Components are attached to entities and store game state
+ * In pure ECS, components contain only data, never methods
  */
 
 /**
  * Base interface for all components
- * Components should only contain data, no methods
+ * Components should only contain data fields, no methods
  */
-export interface Component {
-  /**
-   * Unique type identifier for this component
-   * Used for component queries and type checking
-   */
-  readonly type: string;
-}
+export interface Component {}
 
 /**
- * Component constructor type for creating component instances
+ * Component class type for identifying component types
  */
-export type ComponentConstructor<T extends Component = Component> =
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  new (...args: any[]) => T;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ComponentClass<T extends Component = Component> = new (...args: any[]) => T;

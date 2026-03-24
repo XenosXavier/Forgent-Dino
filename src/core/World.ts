@@ -1,72 +1,188 @@
 /**
- * World - Container for entities and systems
- * Manages entity lifecycle and system registration
+ * World - ECS World Container
+ * Manages entities, components, and systems
+ * In pure ECS, the World owns all entity-component relationships
  */
 
-import { Entity } from './Entity';
+import type { Entity } from './Entity';
+import { createEntity } from './Entity';
+import type { Component, ComponentClass } from './Component';
 import type { System } from './System';
-import type { ComponentConstructor } from './Component';
 
 /**
- * World class manages all entities and systems
- * Provides query methods for systems to find entities
+ * World class manages the ECS world
+ * - Stores all entities
+ * - Stores all component data organized by type
+ * - Manages systems
+ * - Provides query methods for systems
  */
 export class World {
-  private entities: Entity[];
+  // Active entities
+  private entities: Set<Entity>;
+
+  // Component storage: ComponentClass -> (Entity -> Component)
+  private components: Map<ComponentClass, Map<Entity, Component>>;
+
+  // Systems
   private systems: System[];
+
+  // Entities pending removal
   private entitiesToRemove: Set<Entity>;
 
   constructor() {
-    this.entities = [];
+    this.entities = new Set();
+    this.components = new Map();
     this.systems = [];
     this.entitiesToRemove = new Set();
   }
 
   /**
-   * Create and add new entity to world
-   * @returns New entity instance
+   * Create new entity and add to world
+   * @returns New entity ID
    */
   createEntity(): Entity {
-    const entity = new Entity();
-    this.entities.push(entity);
+    const entity = createEntity();
+    this.entities.add(entity);
     return entity;
   }
 
   /**
    * Add existing entity to world
-   * @param entity Entity to add
+   * @param entity Entity ID to add
    */
   addEntity(entity: Entity): void {
-    this.entities.push(entity);
+    this.entities.add(entity);
   }
 
   /**
    * Mark entity for removal (removed at end of frame)
-   * @param entity Entity to remove
+   * @param entity Entity ID to remove
    */
   removeEntity(entity: Entity): void {
-    entity.deactivate();
     this.entitiesToRemove.add(entity);
   }
 
   /**
    * Get all active entities
-   * @returns Array of active entities
+   * @returns Set of active entity IDs
    */
-  getEntities(): readonly Entity[] {
-    return this.entities.filter((e) => e.isActive());
+  getEntities(): ReadonlySet<Entity> {
+    return this.entities;
+  }
+
+  /**
+   * Check if entity exists in world
+   * @param entity Entity ID
+   * @returns True if entity is active
+   */
+  hasEntity(entity: Entity): boolean {
+    return this.entities.has(entity);
+  }
+
+  /**
+   * Add component to entity
+   * @param entity Entity ID
+   * @param componentClass Component class
+   * @param component Component instance
+   */
+  addComponent<T extends Component>(
+    entity: Entity,
+    componentClass: ComponentClass<T>,
+    component: T
+  ): void {
+    if (!this.entities.has(entity)) {
+      throw new Error(`Entity ${entity} does not exist in world`);
+    }
+
+    let componentMap = this.components.get(componentClass);
+    if (!componentMap) {
+      componentMap = new Map();
+      this.components.set(componentClass, componentMap);
+    }
+
+    componentMap.set(entity, component);
+  }
+
+  /**
+   * Get component from entity
+   * @param entity Entity ID
+   * @param componentClass Component class
+   * @returns Component instance or undefined
+   */
+  getComponent<T extends Component>(
+    entity: Entity,
+    componentClass: ComponentClass<T>
+  ): T | undefined {
+    const componentMap = this.components.get(componentClass);
+    return componentMap?.get(entity) as T | undefined;
+  }
+
+  /**
+   * Check if entity has component
+   * @param entity Entity ID
+   * @param componentClass Component class
+   * @returns True if entity has component
+   */
+  hasComponent<T extends Component>(
+    entity: Entity,
+    componentClass: ComponentClass<T>
+  ): boolean {
+    const componentMap = this.components.get(componentClass);
+    return componentMap?.has(entity) ?? false;
+  }
+
+  /**
+   * Remove component from entity
+   * @param entity Entity ID
+   * @param componentClass Component class
+   * @returns True if component was removed
+   */
+  removeComponent<T extends Component>(
+    entity: Entity,
+    componentClass: ComponentClass<T>
+  ): boolean {
+    const componentMap = this.components.get(componentClass);
+    return componentMap?.delete(entity) ?? false;
+  }
+
+  /**
+   * Get all components for an entity
+   * @param entity Entity ID
+   * @returns Array of all components attached to entity
+   */
+  getEntityComponents(entity: Entity): Component[] {
+    const result: Component[] = [];
+
+    for (const componentMap of this.components.values()) {
+      const component = componentMap.get(entity);
+      if (component) {
+        result.push(component);
+      }
+    }
+
+    return result;
   }
 
   /**
    * Query entities that have specific components
-   * @param ctors Component constructors to query
-   * @returns Array of matching entities
+   * @param componentClasses Component classes to query
+   * @returns Array of entity IDs that have all specified components
    */
-  queryEntities(...ctors: ComponentConstructor[]): Entity[] {
-    return this.entities.filter((entity) => {
-      if (!entity.isActive()) return false;
-      return ctors.every((ctor) => entity.hasComponent(ctor));
-    });
+  query(...componentClasses: ComponentClass[]): Entity[] {
+    const result: Entity[] = [];
+
+    for (const entity of this.entities) {
+      // Check if entity has all required components
+      const hasAll = componentClasses.every((componentClass) =>
+        this.hasComponent(entity, componentClass)
+      );
+
+      if (hasAll) {
+        result.push(entity);
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -125,20 +241,26 @@ export class World {
   }
 
   /**
-   * Remove all inactive entities from world
+   * Remove all entities marked for deletion
    */
   private cleanupEntities(): void {
     if (this.entitiesToRemove.size === 0) return;
 
-    // Remove entities marked for deletion
-    this.entities = this.entities.filter(
-      (entity) => !this.entitiesToRemove.has(entity)
-    );
+    for (const entity of this.entitiesToRemove) {
+      // Remove entity
+      this.entities.delete(entity);
+
+      // Remove all components for this entity
+      for (const componentMap of this.components.values()) {
+        componentMap.delete(entity);
+      }
+    }
+
     this.entitiesToRemove.clear();
   }
 
   /**
-   * Remove all entities and systems
+   * Remove all entities, components, and systems
    */
   clear(): void {
     // Cleanup all systems
@@ -148,7 +270,8 @@ export class World {
       }
     }
 
-    this.entities = [];
+    this.entities.clear();
+    this.components.clear();
     this.systems = [];
     this.entitiesToRemove.clear();
   }

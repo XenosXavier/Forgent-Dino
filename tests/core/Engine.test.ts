@@ -1,7 +1,3 @@
-/**
- * Engine unit tests
- */
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Engine } from '../../src/core/Engine';
 import { World } from '../../src/core/World';
@@ -59,7 +55,7 @@ describe('Engine', () => {
       const updateSpy = vi.spyOn(world, 'update');
 
       engine.start();
-      vi.advanceTimersByTime(16); // ~60 FPS frame
+      vi.advanceTimersByTime(16);
 
       expect(updateSpy).toHaveBeenCalled();
     });
@@ -104,11 +100,9 @@ describe('Engine', () => {
     });
 
     it('should return FPS value', () => {
-      // FPS starts at 0
       expect(engine.getFps()).toBe(0);
 
       engine.start();
-      // After starting, FPS tracking is initialized
       expect(engine.getFps()).toBeGreaterThanOrEqual(0);
     });
   });
@@ -120,7 +114,6 @@ describe('Engine', () => {
       engine.start();
       vi.advanceTimersByTime(16);
 
-      // World update should be called
       expect(updateSpy).toHaveBeenCalled();
     });
 
@@ -129,9 +122,8 @@ describe('Engine', () => {
       const updateSpy = vi.spyOn(world, 'update');
 
       customEngine.start();
-      vi.advanceTimersByTime(200); // Simulate lag spike
+      vi.advanceTimersByTime(200);
 
-      // World update should still be called even with lag
       expect(updateSpy).toHaveBeenCalled();
       customEngine.stop();
     });
@@ -141,7 +133,6 @@ describe('Engine', () => {
 
       engine.start();
 
-      // Simulate multiple frames
       vi.advanceTimersByTime(16);
       vi.advanceTimersByTime(16);
       vi.advanceTimersByTime(16);
