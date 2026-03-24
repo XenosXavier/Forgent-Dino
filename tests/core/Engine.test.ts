@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Engine } from './Engine';
-import { World } from './World';
+import { Engine } from '../../src/core/Engine';
+import { World } from '../../src/core/World';
 
 describe('Engine', () => {
   let world: World;

@@ -3,10 +3,10 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { World } from './World';
-import { Entity } from './Entity';
-import { System } from './System';
-import type { Component } from './Component';
+import { World } from '../../src/core/World';
+import { Entity } from '../../src/core/Entity';
+import { System } from '../../src/core/System';
+import type { Component } from '../../src/core/Component';
 
 // Mock components
 class PositionComponent implements Component {

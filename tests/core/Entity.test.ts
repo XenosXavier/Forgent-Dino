@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Entity } from './Entity';
-import type { Component } from './Component';
+import { Entity } from '../../src/core/Entity';
+import type { Component } from '../../src/core/Component';
 
 // Mock component for testing
 class MockComponent implements Component {
