@@ -109,8 +109,8 @@ describe('World', () => {
 
       const component = world.getComponent(entity, PositionComponent);
       if (component) {
-        expect((component as PositionComponent).x).toBe(30);
-        expect((component as PositionComponent).y).toBe(40);
+        expect(component.x).toBe(30);
+        expect(component.y).toBe(40);
       }
     });
   });
@@ -124,8 +124,8 @@ describe('World', () => {
       const result = world.getComponent(entity, PositionComponent);
       expect(result).toBeDefined();
       if (result) {
-        expect((result as PositionComponent).x).toBe(10);
-        expect((result as PositionComponent).y).toBe(20);
+        expect(result.x).toBe(10);
+        expect(result.y).toBe(20);
       }
     });
 
@@ -145,8 +145,8 @@ describe('World', () => {
       const vel = world.getComponent(entity, VelocityComponent);
 
       if (pos && vel) {
-        expect((pos as PositionComponent).x).toBe(10);
-        expect((vel as VelocityComponent).vx).toBe(5);
+        expect(pos.x).toBe(10);
+        expect(vel.vx).toBe(5);
       }
     });
   });

@@ -81,7 +81,7 @@ export class World {
    */
   addComponent<T extends Component>(
     entity: Entity,
-    componentClass: ComponentClass,
+    componentClass: ComponentClass<T>,
     component: T
   ): void {
     if (!this.entities.has(entity)) {
@@ -105,7 +105,7 @@ export class World {
    */
   getComponent<T extends Component>(
     entity: Entity,
-    componentClass: ComponentClass
+    componentClass: ComponentClass<T>
   ): T | undefined {
     const componentMap = this.components.get(componentClass);
     return componentMap?.get(entity) as T | undefined;
@@ -117,7 +117,10 @@ export class World {
    * @param componentClass Component class
    * @returns True if entity has component
    */
-  hasComponent(entity: Entity, componentClass: ComponentClass): boolean {
+  hasComponent<T extends Component>(
+    entity: Entity,
+    componentClass: ComponentClass<T>
+  ): boolean {
     const componentMap = this.components.get(componentClass);
     return componentMap?.has(entity) ?? false;
   }
@@ -128,7 +131,10 @@ export class World {
    * @param componentClass Component class
    * @returns True if component was removed
    */
-  removeComponent(entity: Entity, componentClass: ComponentClass): boolean {
+  removeComponent<T extends Component>(
+    entity: Entity,
+    componentClass: ComponentClass<T>
+  ): boolean {
     const componentMap = this.components.get(componentClass);
     return componentMap?.delete(entity) ?? false;
   }
