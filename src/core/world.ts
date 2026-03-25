@@ -24,10 +24,14 @@ export class World {
   // Entities pending removal
   private removalEntities: Set<Entity>;
 
+  // Reusable query result array (performance optimization to avoid allocations)
+  private queryResult: Entity[];
+
   constructor() {
     this.entities = new Set();
     this.components = new Map();
     this.removalEntities = new Set();
+    this.queryResult = [];
   }
 
   /**
@@ -159,7 +163,8 @@ export class World {
    * @returns Array of entity IDs that have all specified components
    */
   query(...componentClasses: ComponentClass[]): Entity[] {
-    const result: Entity[] = [];
+    // Clear and reuse array to avoid allocations in game loop
+    this.queryResult.length = 0;
 
     for (const entity of this.entities) {
       // Check if entity has all required components
@@ -168,11 +173,11 @@ export class World {
       );
 
       if (hasAll) {
-        result.push(entity);
+        this.queryResult.push(entity);
       }
     }
 
-    return result;
+    return this.queryResult;
   }
 
   /**
