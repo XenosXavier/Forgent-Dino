@@ -41,10 +41,10 @@ export interface GroundConfig {
 
 /**
  * Default ground configuration
- * Uses Chrome Dino sprite sheet for ground texture
+ * Uses Chrome Dino sprite sheet for ground texture at actual size (1200px)
  */
 export const DEFAULT_GROUND_CONFIG: GroundConfig = {
-  width: 600,
+  width: 1200, // Match sprite sheet source width for seamless tiling
   height: 12,
   y: 138,
   scrollSpeed: -200,
