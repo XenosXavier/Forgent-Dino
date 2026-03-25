@@ -27,6 +27,7 @@ export class ScrollSystem extends System {
   /**
    * Update entity positions for infinite scrolling
    * When entity moves completely off left side, wrap to right side
+   * For seamless looping, find the rightmost entity and position after it
    * @param world Game world
    * @param _deltaTime Time since last frame (unused)
    */
@@ -44,8 +45,32 @@ export class ScrollSystem extends System {
       // If entity moved completely off left side of screen
       // (right edge at or past left boundary)
       if (position.x + sprite.width <= 0) {
-        // Wrap to right side
-        position.x = this.canvasWidth;
+        // Find the rightmost entity with same dimensions (for seamless looping)
+        let maxX = this.canvasWidth;
+
+        for (const otherEntity of entities) {
+          if (otherEntity === entity) continue;
+
+          const otherPos = world.getComponent(otherEntity, Position);
+          const otherSprite = world.getComponent(otherEntity, Sprite);
+
+          // Check if same size (part of same looping group)
+          if (
+            otherPos &&
+            otherSprite &&
+            otherSprite.width === sprite.width &&
+            otherSprite.height === sprite.height
+          ) {
+            // Position after the rightmost entity for seamless connection
+            const otherRightEdge = otherPos.x + otherSprite.width;
+            if (otherRightEdge > maxX) {
+              maxX = otherRightEdge;
+            }
+          }
+        }
+
+        // Wrap to position immediately after the rightmost entity
+        position.x = maxX;
       }
     }
   }

@@ -10,6 +10,7 @@ import { RenderSystem } from './systems/renderSystem';
 import { MovementSystem } from './systems/movementSystem';
 import { ScrollSystem } from './systems/scrollSystem';
 import { createGround } from './entities/ground';
+import { createClouds } from './entities/cloud';
 
 /**
  * Initialize canvas and rendering context
@@ -61,6 +62,9 @@ function main(): void {
     engine.addSystem(new MovementSystem(100)); // Update positions first
     engine.addSystem(new ScrollSystem(CANVAS_WIDTH, 50)); // Handle scrolling
     engine.addSystem(new RenderSystem(ctx, -100)); // Render last
+
+    // Create cloud entities with parallax scrolling
+    createClouds(world);
 
     // Create ground entities with infinite scrolling
     createGround(world);
