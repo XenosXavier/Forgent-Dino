@@ -107,5 +107,100 @@ describe('RenderSystem', () => {
       expect(fillRectSpy).toHaveBeenCalledTimes(1);
       expect(fillRectSpy).toHaveBeenCalledWith(0, 0, 600, 150);
     });
+
+    it('should render sprite with image when image is loaded', () => {
+      const drawImageSpy = vi.spyOn(mockCtx, 'drawImage');
+
+      // Create mock image that is loaded
+      const mockImage = {
+        complete: true,
+        naturalWidth: 100,
+        src: '',
+      } as HTMLImageElement;
+
+      // Mock Image constructor
+      global.Image = vi.fn(() => mockImage) as unknown as typeof Image;
+
+      const entity = world.createEntity();
+      world.addComponent(entity, new Position(10, 20));
+      world.addComponent(
+        entity,
+        new Sprite(50, 30, '#FF0000', 'test.png', 5, 10, 100, 50)
+      );
+
+      system.update(world, 0);
+
+      // Should use drawImage with source rectangle
+      expect(drawImageSpy).toHaveBeenCalledWith(
+        mockImage,
+        5, // sourceX
+        10, // sourceY
+        100, // sourceWidth
+        50, // sourceHeight
+        10, // destX
+        20, // destY
+        50, // destWidth
+        30 // destHeight
+      );
+    });
+
+    it('should fallback to fillRect when image not loaded', () => {
+      // Create mock image that is NOT loaded
+      const mockImage = {
+        complete: false,
+        naturalWidth: 0,
+        src: '',
+      } as HTMLImageElement;
+
+      global.Image = vi.fn(() => mockImage) as unknown as typeof Image;
+
+      const entity = world.createEntity();
+      world.addComponent(entity, new Position(10, 20));
+      world.addComponent(
+        entity,
+        new Sprite(50, 30, '#FF0000', 'test.png')
+      );
+
+      system.update(world, 0);
+
+      // Should fallback to fillRect
+      expect(mockCtx.fillStyle).toBe('#FF0000');
+      expect(fillRectSpy).toHaveBeenCalledWith(10, 20, 50, 30);
+    });
+
+    it('should use sprite dimensions as default source dimensions', () => {
+      const drawImageSpy = vi.spyOn(mockCtx, 'drawImage');
+
+      // Create mock loaded image
+      const mockImage = {
+        complete: true,
+        naturalWidth: 100,
+        src: '',
+      } as HTMLImageElement;
+
+      global.Image = vi.fn(() => mockImage) as unknown as typeof Image;
+
+      const entity = world.createEntity();
+      world.addComponent(entity, new Position(15, 25));
+      world.addComponent(
+        entity,
+        new Sprite(60, 40, '#00FF00', 'test.png', 10, 20) // No sourceWidth/Height
+      );
+
+      system.update(world, 0);
+
+      // Should use sprite width/height as source dimensions
+      expect(drawImageSpy).toHaveBeenCalledWith(
+        mockImage,
+        10, // sourceX
+        20, // sourceY
+        60, // sourceWidth (defaults to sprite.width)
+        40, // sourceHeight (defaults to sprite.height)
+        15, // destX
+        25, // destY
+        60, // destWidth
+        40 // destHeight
+      );
+    });
   });
 });
