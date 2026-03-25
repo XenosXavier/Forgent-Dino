@@ -9,7 +9,13 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
+      exclude: [
+        'src/**/*.test.ts',
+        'src/**/*.spec.ts',
+        'src/**/index.ts', // Barrel exports
+        'src/types.ts', // Type definitions only
+        'src/main.ts', // Entry point (tested via integration)
+      ],
       all: true,
       lines: 90,
       functions: 90,
