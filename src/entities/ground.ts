@@ -3,11 +3,11 @@
  * Creates ground entities with scrolling behavior
  */
 
-import type { World } from '../core/World';
-import type { Entity } from '../core/Entity';
-import { Position } from '../components/Position';
-import { Velocity } from '../components/Velocity';
-import { Sprite } from '../components/Sprite';
+import type { World } from '../core/world';
+import type { Entity } from '../core/entity';
+import { Position } from '../components/position';
+import { Velocity } from '../components/velocity';
+import { Sprite } from '../components/sprite';
 
 /**
  * Ground configuration

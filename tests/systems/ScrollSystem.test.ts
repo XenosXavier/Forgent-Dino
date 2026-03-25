@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ScrollSystem } from '../../src/systems/ScrollSystem';
-import { World } from '../../src/core/World';
-import { Position } from '../../src/components/Position';
-import { Sprite } from '../../src/components/Sprite';
+import { ScrollSystem } from '../../src/systems/scrollSystem';
+import { World } from '../../src/core/world';
+import { Position } from '../../src/components/position';
+import { Sprite } from '../../src/components/sprite';
 
 describe('ScrollSystem', () => {
   let world: World;

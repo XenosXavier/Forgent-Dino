@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createEntity, resetEntityCounter } from '../../src/core/Entity';
+import { createEntity, resetEntityCounter } from '../../src/core/entity';
 
 describe('Entity', () => {
   beforeEach(() => {

@@ -2,10 +2,10 @@
  * Core ECS (Entity Component System) exports
  */
 
-export type { Entity } from './Entity';
-export { createEntity, resetEntityCounter } from './Entity';
-export { System } from './System';
-export { World } from './World';
-export { Engine } from './Engine';
-export type { EngineConfig } from './Engine';
-export type { Component, ComponentClass } from './Component';
+export type { Entity } from './entity';
+export { createEntity, resetEntityCounter } from './entity';
+export { System } from './system';
+export { World } from './world';
+export { Engine } from './engine';
+export type { EngineConfig } from './engine';
+export type { Component, ComponentClass } from './component';

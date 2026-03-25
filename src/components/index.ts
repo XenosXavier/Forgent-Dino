@@ -2,6 +2,6 @@
  * Components barrel export
  */
 
-export { Position } from './Position';
-export { Velocity } from './Velocity';
-export { Sprite } from './Sprite';
+export { Position } from './position';
+export { Velocity } from './velocity';
+export { Sprite } from './sprite';

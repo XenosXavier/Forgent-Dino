@@ -3,10 +3,10 @@
  * Handles physics movement for all entities with Position and Velocity
  */
 
-import { System } from '../core/System';
-import type { World } from '../core/World';
-import { Position } from '../components/Position';
-import { Velocity } from '../components/Velocity';
+import { System } from '../core/system';
+import type { World } from '../core/world';
+import { Position } from '../components/position';
+import { Velocity } from '../components/velocity';
 
 /**
  * MovementSystem updates position based on velocity over time

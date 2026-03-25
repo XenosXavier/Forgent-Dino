@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { World } from '../../src/core/World';
-import { resetEntityCounter } from '../../src/core/Entity';
-import type { Entity } from '../../src/core/Entity';
-import type { Component } from '../../src/core/Component';
+import { World } from '../../src/core/world';
+import { resetEntityCounter } from '../../src/core/entity';
+import type { Entity } from '../../src/core/entity';
+import type { Component } from '../../src/core/component';
 
 // Mock components
 class PositionComponent implements Component {

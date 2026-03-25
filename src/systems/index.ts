@@ -2,6 +2,6 @@
  * Systems barrel export
  */
 
-export { RenderSystem } from './RenderSystem';
-export { MovementSystem } from './MovementSystem';
-export { ScrollSystem } from './ScrollSystem';
+export { RenderSystem } from './renderSystem';
+export { MovementSystem } from './movementSystem';
+export { ScrollSystem } from './scrollSystem';

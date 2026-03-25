@@ -3,10 +3,10 @@
  * Resets entity position when it moves off screen
  */
 
-import { System } from '../core/System';
-import type { World } from '../core/World';
-import { Position } from '../components/Position';
-import { Sprite } from '../components/Sprite';
+import { System } from '../core/system';
+import type { World } from '../core/world';
+import { Position } from '../components/position';
+import { Sprite } from '../components/sprite';
 
 /**
  * ScrollSystem manages infinite scrolling by wrapping entities

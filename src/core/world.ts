@@ -4,9 +4,9 @@
  * In pure ECS, the World owns all entity-component relationships
  */
 
-import type { Entity } from './Entity';
-import { createEntity } from './Entity';
-import type { Component, ComponentClass } from './Component';
+import type { Entity } from './entity';
+import { createEntity } from './entity';
+import type { Component, ComponentClass } from './component';
 
 /**
  * World class manages the ECS world

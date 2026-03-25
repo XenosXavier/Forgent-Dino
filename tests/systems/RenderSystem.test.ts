@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { RenderSystem } from '../../src/systems/RenderSystem';
-import { World } from '../../src/core/World';
-import { Position } from '../../src/components/Position';
-import { Sprite } from '../../src/components/Sprite';
+import { RenderSystem } from '../../src/systems/renderSystem';
+import { World } from '../../src/core/world';
+import { Position } from '../../src/components/position';
+import { Sprite } from '../../src/components/sprite';
 
 describe('RenderSystem', () => {
   let world: World;

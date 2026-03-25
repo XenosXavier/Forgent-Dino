@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Velocity } from '../../src/components/Velocity';
+import { Velocity } from '../../src/components/velocity';
 
 describe('Velocity Component', () => {
   describe('constructor', () => {

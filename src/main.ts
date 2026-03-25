@@ -4,12 +4,12 @@
  */
 
 import { CANVAS_WIDTH, CANVAS_HEIGHT, type CanvasContext } from './types';
-import { Engine } from './core/Engine';
-import { World } from './core/World';
-import { RenderSystem } from './systems/RenderSystem';
-import { MovementSystem } from './systems/MovementSystem';
-import { ScrollSystem } from './systems/ScrollSystem';
-import { createGround } from './entities/Ground';
+import { Engine } from './core/engine';
+import { World } from './core/world';
+import { RenderSystem } from './systems/renderSystem';
+import { MovementSystem } from './systems/movementSystem';
+import { ScrollSystem } from './systems/scrollSystem';
+import { createGround } from './entities/ground';
 
 /**
  * Initialize canvas and rendering context

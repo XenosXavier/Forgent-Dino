@@ -3,7 +3,7 @@
  * Systems should not store state, only contain logic
  */
 
-import type { World } from './World';
+import type { World } from './world';
 
 /**
  * Abstract base class for all systems

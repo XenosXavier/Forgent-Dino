@@ -4,10 +4,10 @@
  * Supports both solid color fill and sprite sheet rendering
  */
 
-import { System } from '../core/System';
-import type { World } from '../core/World';
-import { Position } from '../components/Position';
-import { Sprite } from '../components/Sprite';
+import { System } from '../core/system';
+import type { World } from '../core/world';
+import { Position } from '../components/position';
+import { Sprite } from '../components/sprite';
 
 /**
  * RenderSystem renders all entities that have Position and Sprite components

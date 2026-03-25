@@ -3,8 +3,8 @@
  * Manages the main game loop and systems using requestAnimationFrame
  */
 
-import { World } from './World';
-import type { System } from './System';
+import { World } from './world';
+import type { System } from './system';
 
 /**
  * Engine configuration options

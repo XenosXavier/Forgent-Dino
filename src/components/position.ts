@@ -3,7 +3,7 @@
  * Pure data component in ECS architecture
  */
 
-import type { Component } from '../core/Component';
+import type { Component } from '../core/component';
 
 /**
  * Position component stores entity's position in 2D space

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Sprite } from '../../src/components/Sprite';
+import { Sprite } from '../../src/components/sprite';
 
 describe('Sprite Component', () => {
   describe('constructor', () => {

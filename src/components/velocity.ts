@@ -3,7 +3,7 @@
  * Pure data component in ECS architecture
  */
 
-import type { Component } from '../core/Component';
+import type { Component } from '../core/component';
 
 /**
  * Velocity component stores entity's velocity in 2D space

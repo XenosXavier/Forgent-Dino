@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createGround, DEFAULT_GROUND_CONFIG } from '../../src/entities/Ground';
-import { World } from '../../src/core/World';
-import { Position } from '../../src/components/Position';
-import { Velocity } from '../../src/components/Velocity';
-import { Sprite } from '../../src/components/Sprite';
+import { createGround, DEFAULT_GROUND_CONFIG } from '../../src/entities/ground';
+import { World } from '../../src/core/world';
+import { Position } from '../../src/components/position';
+import { Velocity } from '../../src/components/velocity';
+import { Sprite } from '../../src/components/sprite';
 
 describe('Ground Entity', () => {
   let world: World;

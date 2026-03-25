@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { MovementSystem } from '../../src/systems/MovementSystem';
-import { World } from '../../src/core/World';
-import { Position } from '../../src/components/Position';
-import { Velocity } from '../../src/components/Velocity';
+import { MovementSystem } from '../../src/systems/movementSystem';
+import { World } from '../../src/core/world';
+import { Position } from '../../src/components/position';
+import { Velocity } from '../../src/components/velocity';
 
 describe('MovementSystem', () => {
   let world: World;
