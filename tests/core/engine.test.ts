@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Engine } from '../../src/core/Engine';
-import { World } from '../../src/core/World';
-import { System } from '../../src/core/System';
+import { Engine } from '../../src/core/engine';
+import { World } from '../../src/core/world';
+import { System } from '../../src/core/system';
 
 // Mock system
 class MockSystem extends System {
